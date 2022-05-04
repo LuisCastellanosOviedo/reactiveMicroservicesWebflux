@@ -5,11 +5,9 @@ import reactor.test.StepVerifier;
 
 import java.util.List;
 
-import static org.junit.jupiter.api.Assertions.*;
-
 class FluxAndMonoGeneratorServiceTest {
 
-    FluxAndMonoGeneratorService fluxAndMonoGeneratorService = new FluxAndMonoGeneratorService();
+    private FluxAndMonoGeneratorService fluxAndMonoGeneratorService = new FluxAndMonoGeneratorService();
 
     @Test
     void validateAllNamesPresentOnFlux() {
@@ -19,7 +17,6 @@ class FluxAndMonoGeneratorServiceTest {
         StepVerifier.create(names)
                 .expectNext("James", "Luis", "Julieth")
                 .verifyComplete();
-
     }
 
     @Test
@@ -83,7 +80,7 @@ class FluxAndMonoGeneratorServiceTest {
     void testFlatMap() {
         var namesFlatMap = fluxAndMonoGeneratorService.namesFluxFlatMap(4);
         StepVerifier.create(namesFlatMap)
-                .expectNext("j","A","M","E","S","J","U","L","I","E","T","H")
+                .expectNext("J","A","M","E","S","J","U","L","I","E","T","H")
                 .verifyComplete();
     }
 
@@ -116,6 +113,76 @@ class FluxAndMonoGeneratorServiceTest {
         var names= fluxAndMonoGeneratorService.namesMono_flatMapMany(4);
         StepVerifier.create(names)
                 .expectNext("J","A","M","E","S")
+                .verifyComplete();
+    }
+
+    @Test
+    void namesTransformTest() {
+        var namesTransform = fluxAndMonoGeneratorService.namesFlux_transform(4);
+        StepVerifier.create(namesTransform)
+                .expectNext("J","A","M","E","S","J","U","L","I","E","T","H")
+                .verifyComplete();
+    }
+
+    @Test
+    void namesTransformTest_defaultIsEmpty() {
+        var namesTransform = fluxAndMonoGeneratorService.namesFlux_transform(10);
+        StepVerifier.create(namesTransform)
+                //.expectNext("J","A","M","E","S","J","U","L","I","E","T","H")
+                .expectNext("default")
+                .verifyComplete();
+    }
+
+    @Test
+    void namesTransformTest_switchIfEmpty() {
+        var namesTransform = fluxAndMonoGeneratorService.namesFlux_transform_switchIfEmpty(10);
+        StepVerifier.create(namesTransform)
+                //.expectNext("J","A","M","E","S","J","U","L","I","E","T","H")
+                .expectNext("D","E","F","A","U","L","T")
+                .verifyComplete();
+    }
+
+    @Test
+    void testConcat() {
+        var concatFlux = fluxAndMonoGeneratorService.explore_concat();
+        StepVerifier.create(concatFlux)
+                .expectNext("A","B","C","D","E","F")
+                .verifyComplete();
+    }
+
+    @Test
+    void testConcat_with() {
+        var concatFlux = fluxAndMonoGeneratorService.explore_concat_with();
+        StepVerifier.create(concatFlux)
+                .expectNext("A","B","C","D","E","F")
+                .verifyComplete();
+    }
+
+    @Test
+    void testConcatWith_mono() {
+        var fluxMono = fluxAndMonoGeneratorService.expore_concatWithMono();
+
+        StepVerifier.create(fluxMono)
+                .expectNext("A","B")
+                .verifyComplete();
+
+    }
+
+    @Test
+    void test_merge() {
+        var fluxValues = fluxAndMonoGeneratorService.explore_merge();
+
+        StepVerifier.create(fluxValues)
+                .expectNext("A","D","B","E","C","F")
+                .verifyComplete();
+    }
+
+    @Test
+    void test_merge_sequential() {
+        var fluxValues = fluxAndMonoGeneratorService.explore_merge_sequential();
+
+        StepVerifier.create(fluxValues)
+                .expectNext("A","B","C","D","E","F")
                 .verifyComplete();
     }
 }
